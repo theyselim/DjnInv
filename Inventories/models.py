@@ -3,6 +3,9 @@ from django.utils import timezone
 from datetime import datetime
 
 class Inventory(models.Model):
+	class Meta:
+		verbose_name_plural = "inventories"
+
 	#Model Attributes
 	name = models.CharField(max_length=200)
 	description = models.CharField(max_length=600)
@@ -12,21 +15,22 @@ class Inventory(models.Model):
 		return self.name + ': ' + self.description
 
 
+
 class Item(models.Model):
 	#Relationships with Inventory
 	inventory = models.ForeignKey(Inventory)
 	#Model Attributes
 	item_number = models.IntegerField(blank=False)
 	description = models.CharField(max_length=600)
-	quantity = models.CharField(max_length=100)
-	amount = models.CharField(max_length=100)
-	cases = models.CharField(max_length=100)
+	quantity = models.CharField(max_length=100, default=0)
+	amount = models.CharField(max_length=100, default=1)
+	cases = models.CharField(max_length=100, default=0)
 	def_price = models.DecimalField(max_digits=5, decimal_places=2, null=False)
 	curr_price = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
 	last_modified = models.DateTimeField('Last Modified', default=timezone.now())
 
 	def __unicode__(self):
-		return 'Item#' + self.item_number + ': '+ self.description
+		return 'Item#' + str(self.item_number) + ': '+ self.description
 
 
 class Transaction(models.Model):
@@ -43,4 +47,4 @@ class Transaction(models.Model):
 	t_type = models.CharField(max_length=2, choices=TRANSACTION_TYPE)
 
 	def __unicode__(self):
-		return 'Transaction#' + self.id + ': ' + self.description
+		return 'Transaction#' + str(self.id) + ': ' + self.description

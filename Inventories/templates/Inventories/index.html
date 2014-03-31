@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Home</title>
+ 
+<!-- <link rel="stylesheet" href="css/main.css" type="text/css" /> -->
+</head>
+
+ 
+<body>
+	<ul>
+		{% for inventory in inventories_list %}
+		<li><a href="{{ inventory.id }}"> {{ inventory.id }}: {{ inventory.name }}</a></li>
+		{% endfor %}
+	</ul>
+</body>
+
+</html>
