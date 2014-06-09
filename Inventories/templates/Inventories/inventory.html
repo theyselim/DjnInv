@@ -1,33 +1,203 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="utf-8" />
-	<title>Inventory</title>
+{% extends "Inventories/base.html" %}{% load static %}
 
-	<!-- <link rel="stylesheet" href="css/main.css" type="text/css" /> -->
-</head>
+{% block extra-stylesheet %}
+<link rel="stylesheet" type="text/css" href="{% static "inventories/css/templates/inventory.css" %}" />
+<link rel="stylesheet" type="text/css" href="{% static "inventories/css/jquery-ui-1.10.4.custom.min.css" %}" />
+{% endblock %}
 
+{% block title %}Inventory: {{ inventory_object.name }}{% endblock %}
 
-<body>
-	{% for item in inventory.item_set.all %}
-	<ul id="{{ item.item_number }}">
-		<li> Item ID: {{ item.id }}</li>
-		<li> Item# {{ item.item_number }}</li>
-		<li> Desc: {{ item.description }}</li>
-		<li> Q: {{ item.quantity }}</li>
-		<li> A/U: {{ item.amount }}</li>
-		<li> Cases: {{ item.cases }}</li>
-		<li> Def: ${{ item.def_price }}</li>
-		<li> Curr:  {% if item.curr_price %}
-						${{ item.curr_price }}
-					{% else %}
-						${{ item.def_price }}
-					{% endif %}
-		</li>
-				
-		<li> Last Mod: {{ item.last_modified.month }}/{{ item.last_modified.day }}/{{ item.last_modified.year }}</li>		
+{% block header-active %}
+<li ><a href="{% url 'Inventories:index' %}">Home</a></li>
+<li class="active"><a href="#">Inventory</a></li>
+<li class="dropdown">
+	<a href="#" class="dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown">Options <span class="caret"></span></a>
+	<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu1">
+		<li role="presentation"><a role="menuitem"  data-toggle="modal" data-target="#myModal" href="#">Add Order</a></li>
+		<li role="presentation" class="divider"></li>
+		<li role="presentation"><a role="menuitem" href="/admin/Inventories/inventory/{{ inventory_object.id }}">Edit Items</a></li>
 	</ul>
-	{% endfor %}
-</body>
+</li>
+{% endblock %}
 
-</html>
+{% block content %}
+<!-- Order Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="myModalLabel">Create a new Order</h4>
+			</div>
+			<div class="modal-body">
+				<!-- Modal Form in the body -->
+				<form role="form" id="transcation" action="{% url 'Inventories:transaction' inventory_object.id %}" method="POST">
+					{% csrf_token %}
+					<div class="row">
+						<div class="col-xs-6">
+							<div class="form-group">
+								<select class="form-control" id="transactionType" name="transactionType" data-toggle="popover" data-trigger="manual" data-placement="right" data-content="Make sure you select the order type">
+									<option value="N" disabled selected> Select the Order Type</option>
+									<option value="RE">Receipt - In</option>
+									<option value="TI">Ticket - Out</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<textarea class="form-control" name="description" placeholder="Order Description" rows="3"></textarea>
+							</div>
+						</div>
+						<div class="col-xs-6 order_layout">
+							<h2 title="The order number is not equivalent to the total number of orders made">Order# {{ transaction_num }}</h2>
+							<p> Date - {{ date_now }}</p>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-xs-12" style="max-height: 150px;overflow: auto;">
+							<table class="table table-hover table-bordered table-condensed">
+								<thead>
+									<tr class="center-th">
+										<th>Description</th>
+										<th>Quantity</th>
+										<th>Cases</th>
+										<th>Price</th>
+										<th>Subtotal</th>
+										<th id="removeItemLnkH" data-toggle="popover" data-trigger="manual" data-placement="top" data-content="Remove item or add correct item description &amp; cases number">Remove</th>
+									</tr>
+								</thead>
+								<tbody id="addItem">
+									<tr>
+										<td align="center" class="fullW-col-btn" colspan="6">
+											<a id="addItemBtn" role="button" class="btn btn-default" onclick="addItem();" data-toggle="popover" data-trigger="manual" data-placement="bottom" data-content="Don't forget to add at least 1 item">Add Item</a>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-xs-6">
+							<h4 id="itemCounter">Total Items: 0</h4>
+						</div>
+						<div class="col-xs-6">
+							<h5 id="subtotal" class="pull-right">Subtotal: $0.00</h5>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-xs-3 order-fees">
+							<label for="fees" class="control-label">Additional Fees:</label>
+						</div>
+						<div class="col-xs-3 order-fees">
+							<span>$</span>
+							<input type="text" class="form-control" placeholder="0.00" name="fees" id="fees">
+						</div>
+						<div class="col-xs-6">
+							<h4 id="total" class="pull-right">Total: $0.00</h4>
+						</div>
+					</div>
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-success" id="transactionSubmitBtn">Submit</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+
+<!-- Page Header Text -->
+<div class="page-header">
+	<div class="row">
+		<div class="col-xs-2"></div>
+		<div id="divalicious" align="center" class="col-xs-8 alert alert-dismissable notification-alert">
+			<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+		</div>
+		<div class="col-xs-2"></div>
+	</div>
+	<div class="row">
+		<div class="col-xs-9">
+			<h1>{{ inventory_object.name }} - <small>{{ inventory_object.description }}</small></h1>
+		</div>
+		<div class="col-xs-3">
+			<div class="pull-right item-search">
+				<input type="search"
+				class="filter form-control" 
+				placeholder="Search" />
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Inventory Table -->
+<div class="row">
+	<div class="col-xs-12">
+		<table class="table table-hover table-condensed">
+			<thead>
+				<tr>
+					<th>Item#</th>
+					<th>Description</th>
+					<th class="center-t">Quantity</th>
+					<th class="center-t">Amount (Per Unit)</th>
+					<th class="center-t">Cases</th>
+					<th class="center-t">Original Price</th>
+					<th class="center-t">Current Price</th>
+					<th class="center-t">Price Difference</th>
+				</tr>
+			</thead>
+
+			<tbody class="searchable">
+				{% if inventory %}
+				{% for item, price_diff in inventory %}
+				<tr id="item{{ item.id }}">
+					<td>{{ item.item_number }}</td>
+					<td>{{ item.description }}</td>
+					<td class="center-t">{{ item.quantity }}</td>
+					<td class="center-t">{{ item.amount }}</td>
+					<td class="center-t">{{ item.cases }}</td>
+					<td class="center-t">${{ item.def_price }}</td>
+					<td class="center-t">{% if item.curr_price %}
+						${{ item.curr_price }}
+						{% else %}
+						${{ item.def_price }}
+						{% endif %}
+					</td>
+					{% if price_diff|slice:"1" == '-' and price_diff|length > 1 %}
+					<td class="danger center-t">${{ price_diff|slice:"1:" }}</td>
+					{% elif price_diff|slice:"1" != '-' %}
+					<td class="success center-t">${{ price_diff }}</td>
+					{% else %}
+					<td class="center-t">{{ price_diff }}</td> 
+					{% endif %}
+				</tr>
+				{% endfor %}
+				{% else %}
+				<tr><td colspan="8" align="center"> No Items Available. Add them through Adminstration Page.</td></tr>
+				{% endif %}
+			</tbody>
+		</table>	
+
+	</div>
+</div>
+{% endblock %}
+
+{% block extra-js %} 
+<script type="text/javascript" src="{% static "inventories/js/jquery-ui-1.10.4.custom.min.js" %}"></script>
+<script type="text/javascript" src="{% static "inventories/js/jquery.ui.autocomplete.scroll.min.js" %}"></script>
+<script type="text/javascript">
+	var usr_msg ="{{ request.session.message }}";
+	var usr_msg_status;
+	{% if request.session.error_msg %}
+	usr_msg_status = {{ request.session.error_msg }};
+	{% endif %}
+	var inventory_items = [];
+	{% for item, p in inventory %}
+	inventory_items.push({"value": "{{ item.description }}", "id":"{{ item.id }}","quantity":"{{ item.quantity }}", "price":{% if item.curr_price %}{{ item.curr_price }}{% else %}{{ item.def_price }}{% endif %}});
+	{% endfor %}
+</script>
+<script type="text/javascript" src="{% static "inventories/js/templates/inventory.js" %}"></script>
+{% endblock %}
+

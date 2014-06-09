@@ -4,7 +4,8 @@ from Inventories import views
 
 urlpatterns = patterns('',
     url(r'^$', views.index, name='index'),
-    url(r'^(?P<inventory_id>\d+)/$', views.inventory, name='inventory'),
-    # url(r'^(?P<inventory_id>\d+)/results/$', views.ResultsView.as_view(), name='results'),
-    # url(r'^(?P<poll_id>\d+)/vote/$', views.vote, name='vote'),
+    url(r'^report/$', views.reportProblem, name='report'),
+    url(r'^inventories/(?P<inventory_id>\d+)/$', views.inventory, name='inventory'),
+    url(r'^archive/$', views.archive, name='archive'),
+    url(r'^inventories/(?P<inventory_id>\d+)/transaction/$', views.transaction, name='transaction'),
     )

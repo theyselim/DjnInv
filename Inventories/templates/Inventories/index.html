@@ -1,19 +1,119 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<title>Home</title>
- 
-<!-- <link rel="stylesheet" href="css/main.css" type="text/css" /> -->
-</head>
+{% extends "Inventories/base.html" %}{% load static %}
 
- 
-<body>
-	<ul>
-		{% for inventory in inventories_list %}
-		<li><a href="{{ inventory.id }}"> {{ inventory.id }}: {{ inventory.name }}</a></li>
-		{% endfor %}
-	</ul>
-</body>
+{% block extra-stylesheet %}
+<link rel="stylesheet" type="text/css" href="{% static "inventories/css/templates/index.css" %}" />
+{% endblock %}
 
-</html>
+{% block title %}IM Home{% endblock %}
+
+{% block content %}
+<div class="row">
+	<div class="col-xs-1"></div>
+	<div id="divalicious" align="center" class="col-xs-10 alert notification-alert alert-dismissable">
+	</div>
+	<div class="col-xs-1"></div>
+</div>
+
+<div class="row">
+	<div class="col-xs-8" align="center">
+		<h1><small>Top Consumed Items</small></h1>
+		<div id="lineLegend"></div>
+		<canvas id="canvas" height="400" width="800"></canvas>
+
+	</div>
+	<div class="col-xs-4">
+		<br/><br/><br/>
+		<div class="panel panel-primary">
+			<div class="panel-heading" align="center">
+				<h4 style="font-weight: 300;">Current Inventories</h4>
+			</div>
+			<div class="list-group" align="center" style="max-height: 200px;overflow: auto;">
+				{% for inventory in inventories_list %}
+				<a href="{% url 'Inventories:inventory' inventory.id  %}" class="list-group-item">{{ inventory.name }}</a>
+				{% endfor %}
+				<a href="/admin/Inventories/inventory/add/" class="list-group-item list-group-item-info">Create a new Inventory</a>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block body-content %}
+<footer>
+	<div class="container">
+		<p class="text-muted pull-left">&copy; 2014 Youssef Selim</p>
+		<a href="#" class="text-muted pull-right">Report a problem</a>	
+	</div>
+</footer>
+{% endblock %}
+{% block extra-js %} 
+<script type="text/javascript" src="{% static "inventories/js/Chart.min.js" %}"></script>
+<script type="text/javascript" src="{% static "inventories/js/legend.js" %}"></script>
+<script>
+	// Load report a problem Popover form
+	var popover_content = "<form>{% csrf_token %}<textarea class='form-control' name='reportMessage' placeholder='Describe it...' rows='3'></textarea><button id='report' class='form-control btn-success btn' type='submit'>Report</button></form>";
+	// Listenting for report a porblem + Powered by AJAX
+	$(document).on( 'click', '#report', function(e){
+		e.preventDefault();
+
+		
+		$.ajax({
+			type: "POST",
+			url: '{% url "Inventories:report" %}',
+			data: { 
+				'csrfmiddlewaretoken': document.getElementsByName('csrfmiddlewaretoken')[0].value,
+				'reportMessage':document.getElementsByName('reportMessage')[0].value,
+			},
+			success: function(response){
+				sendProblem();
+				console.log('here' + response);
+			}
+		});
+		return false;
+	});
+
+	
+	// Load chart data
+	var labels = [], mData = [];
+	{% for month, no, data in top_items_months_list%}
+	labels.push("{{ month }}");
+	mData.push({{ data }});
+	{% endfor %}
+
+	var itemsTitle = [];
+	{% for item,cases in top_items_list%}
+	itemsTitle.push("{{ item.description }}");
+	{% endfor %}
+
+	var lineChartData = {
+		labels : labels,
+		datasets : [
+		{
+			fillColor : "rgba(121,187,105,0.4)",
+			strokeColor : "rgba(121,187,105,1)",
+			pointColor : "rgba(121,187,105,1)",
+			pointStrokeColor : "#fff",
+			data : [mData[0][0],mData[1][0],mData[2][0]],
+			title : itemsTitle[0]
+		},
+		{
+			fillColor : "rgba(151,157,205,0.5)",
+			strokeColor : "rgba(151,157,205,1)",
+			pointColor : "rgba(151,157,205,1)",
+			pointStrokeColor : "#fff",
+			data : [mData[0][1],mData[1][1],mData[2][1]],
+			title : itemsTitle[1]
+		},
+		{
+			fillColor : "rgba(200,120,120,0.5)",
+			strokeColor : "rgba(200,120,120,1)",
+			pointColor : "rgba(200,120,120,1)",
+			pointStrokeColor : "#fff",
+			data : [mData[0][2],mData[1][2],mData[2][2]],
+			title : itemsTitle[2]
+		}
+		]
+
+	}
+</script>
+<script type="text/javascript" src="{% static "inventories/js/templates/index.js" %}"></script>
+{% endblock %}

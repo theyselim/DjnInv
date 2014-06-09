@@ -1,0 +1,79 @@
+{% extends "Inventories/base.html" %}{% load static %}
+
+{% block extra-stylesheet %}
+<link rel="stylesheet" type="text/css" href="{% static "inventories/css/templates/archive.css" %}" />
+{% endblock %}
+
+{% block title %}Archive{% endblock %}
+
+{% block header-active %}
+<li><a href="{% url 'Inventories:index' %}">Home</a></li>
+
+<li class="active"><a href="#"> Archive</a></li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+	<div class="col-xs-5">
+		<div class="panel panel-primary">
+			<div class="panel-heading" align="center">
+				<h4 style="font-weight: 300;" title="Scroll for more">Latest Orders</h4>
+			</div>
+			<div class="list-group" align="center" style="max-height: 480px; overflow: auto;">
+				{% for transaction in last_15_transactions %}
+				<a href="#" class="list-group-item"> Order# {{ transaction.id }} | 
+					{% if transaction.description %} {{ transaction.description }} 
+					{% else %} No Description {% endif %} </a>	
+					{% endfor %}
+					<a href="#" class="list-group-item list-group-item-info">View More</a>
+				</div>
+			</div>
+
+		</div>
+		<div class="col-xs-7" align="center">
+			<h3>Order# 23 <span class="label label-default">Ticket</span></h3>
+			<h4>Date - <small>08/14/1991</small></h4>
+			<h5>Food Inventory</h5>
+			<table class="table table-hover table-bordered table-condensed">
+				<thead>
+					<tr>
+						<th>Description</th>
+						<th>Quantity</th>
+						<th>Cases</th>
+						<th>Price</th>
+						<th>Subtotal</th>
+					</tr>
+				</thead>
+				<tbody>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+				</tbody>
+			</table>
+			<div class="row">
+				<div class="col-xs-12">
+					<p class="pull-left">Total Items: 3</p>
+					<p class="pull-right">Subtotal: $4</p>					
+				</div>	
+			</div>
+			<div class="row">
+				<div class="col-xs-12">
+					<p class="pull-left">Additional Fees: $3</p>
+					<p class="pull-right">Total: $7</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endblock %}
+
+	{% block body-content %}
+	{% endblock %}
+
+	{% block extra-js %} 
+	<script type="text/javascript" src="{% static "inventories/js/templates/archive.js" %}"></script>
+	{% endblock %}
+
+
+

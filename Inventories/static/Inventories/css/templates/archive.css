@@ -1,0 +1,10 @@
+/*
+Overriding the content spacing
+*/
+.content{
+	margin-top: 60px !important;
+}
+
+.logged{
+	bottom: 45px !important;
+}

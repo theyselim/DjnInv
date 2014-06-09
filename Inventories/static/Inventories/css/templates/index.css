@@ -1,0 +1,22 @@
+/**********************************************
+Add extra spacing reporting submit and textarea
+**********************************************/
+button[type='submit']{
+	margin-top: 5px;
+}
+/***********
+Canvas Style
+***********/
+canvas{
+	width: 100% !important;
+}
+
+/*****************
+Chart Legend style
+*****************/
+.legend .title {
+	margin: 0.5em;
+	border-style: solid;
+	border-width: 0 0 0 1em;
+	padding: 0 0.3em;
+}

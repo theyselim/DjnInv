@@ -1,0 +1,118 @@
+/****************************************
+Layout
+*****************************************/
+.logged{
+	right: 250px !important;
+	bottom: 25px !important;
+}
+.modal-body{
+	padding: 20px 20px 0px 20px !important;
+}
+.modal-footer{
+	margin-top: 5px !important;
+}
+.order_layout > h2, .order_layout > p{
+	float: right;
+}
+.order_layout > p{
+	margin-left: 50px;
+}
+.center-th > th{
+	text-align: center;
+}
+.center-t{
+	text-align: center;
+}
+
+/****************************************
+Order components
+*****************************************/
+.order-comp{
+	padding: 2px 3px 0px 3px !important;
+}
+.order-comp > input{
+	border: 0px;
+	margin-bottom: 5px;
+	width: 100%;
+	height: 100%;
+	text-align: center; 
+}
+.order-fees label{
+	margin-top: 10px;
+	width: 140px !important;
+}
+.order-fees:nth-child(2){
+	margin-top: 8px;
+	right: 17px;
+	padding-left: 0px;
+}
+.order-fees > input{
+	display: inline;
+	border-width: 0px 0px 1px 0px;
+	padding: 0px 0px 1px 20px;
+	width: 60%;
+	height: 19px;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
+.order-fees > input:focus{
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+
+}
+.order-fees > span{
+	position: relative; 
+	left: 20px;
+	top: 1px;
+}
+.fullW-col-btn{
+	padding: 0px !important;
+}
+.fullW-col-btn a{
+	display: block;
+	border: 0px;
+}
+/****************************************
+Search Icon & Position - Inventory Items Search
+*****************************************/
+.item-search {
+	margin: 20px 20px 0px 0px;
+}
+
+.item-search:before {
+	content: "\e003";
+	font-family: 'Glyphicons Halflings';
+	color: rgba(0,0,0,0.4);
+	line-height: 1;
+	position: absolute;
+	right: 0px;
+	padding: 10px 40px;
+}
+
+/****************************************
+Remove Icon & Position - Item Rows in Order
+*****************************************/
+.item-remove::before{
+	content: "\e014";
+	font-family: 'Glyphicons Halflings';
+	color: rgba(0,0,0,0.4);
+	position: absolute;
+	padding: 0px 25px;
+}
+.item-remove:hover::before{
+	color: rgba(0,0,0,0.9);
+}
+
+/****************************************
+z-index fixes due to modal
+*****************************************/
+.ui-front {
+	z-index: 1060 !important;
+}
+.popover {
+	z-index: 1070 !important;
+	position: fixed !important;
+	color: #a94442;
+}
