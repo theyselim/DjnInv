@@ -3,9 +3,10 @@ from django.conf.urls import patterns, url
 from Inventories import views
 
 urlpatterns = patterns('',
-    url(r'^$', views.index, name='index'),
-    url(r'^report/$', views.reportProblem, name='report'),
-    url(r'^inventories/(?P<inventory_id>\d+)/$', views.inventory, name='inventory'),
-    url(r'^archive/$', views.archive, name='archive'),
-    url(r'^inventories/(?P<inventory_id>\d+)/transaction/$', views.transaction, name='transaction'),
-    )
+	url(r'^$', views.index, name='index'),
+	url(r'^login/$', views.login, name='login'),
+	url(r'^report/$', views.reportProblem, name='report'),
+	url(r'^inventories/(?P<inventory_id>\d+)/$', views.inventory, name='inventory'),
+	url(r'^archive/$', views.archive, name='archive'),
+	url(r'^inventories/(?P<inventory_id>\d+)/transaction/$', views.transaction, name='transaction'),
+	)

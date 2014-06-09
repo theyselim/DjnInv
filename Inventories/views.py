@@ -1,5 +1,5 @@
 from django.http import HttpResponseRedirect, HttpResponse, StreamingHttpResponse
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login
 from django.shortcuts import render, get_object_or_404
 from Inventories.models import Inventory, Item, Transaction, ItemTransaction
 from django.shortcuts import redirect
@@ -13,8 +13,23 @@ from decimal import *
 ########## RENDERING VIEWS #####################
 s = 'Inventories/'
 #Homepage view: Showing inventories
-#@login_required
 def index(request):
+	# Redirect to login page
+	if request.user.is_anonymous() and request.method != 'POST':
+		return render(request, 'registration/login.html')
+
+	# Authenticate submitted credentials
+	elif request.method == 'POST':
+		if loginInv(request, request.POST.get('username'), request.POST.get('password')):
+			return loadIndex(request)
+		else:
+			context = {'err_message': 'Invalid credentials. Please try again'}
+			return render(request, 'registration/login.html', context)
+	elif request.user.is_authenticated():
+		return loadIndex(request)
+		
+
+def loadIndex(request):
 	date_now = timezone.now()
 	date_past = date_now - datetime.timedelta(days=90)
 	# Transactions that happened during the past  90 days, only tickets sorted by recent
@@ -22,24 +37,21 @@ def index(request):
 	# Each of the top items with values for each - month (#, names), to be added to context
 	top_items_list = getTopItems(transactions_list)
 	top_items_months_list = []
-	
+
 	for i in range(3):
 		that_date = date_now - datetime.timedelta(days=30)*i
 		top_items_months_list.append((that_date.strftime('%B'), that_date.month, getItemsMonth(that_date.month, top_items_list, transactions_list)))
 	
-	# print top_items_list
-	print top_items_months_list
-
 	inventories_list = Inventory.objects.all().order_by('date_created')
 	context = {'inventories_list': inventories_list,
 	'top_items_list': top_items_list, 
 	'top_items_months_list': reversed(top_items_months_list)
 	}
 	return render(request, s+'index.html', context)
+		
 
 
 #Inventory view according to the one selected from index view
-@login_required
 def inventory(request, inventory_id):
 	inventory = get_object_or_404(Inventory, pk=inventory_id)
 	all_inven_items = inventory.item_set.all()#Uncomment for Alpha ordering .order_by('description')
@@ -63,12 +75,11 @@ def inventory(request, inventory_id):
 
 
 #Perform transaction operation from Order POST form, redirect to updated inventory
-@login_required
 def transaction(request, inventory_id):
 	inventory = get_object_or_404(Inventory, pk=inventory_id)
 	items_list = request.POST.getlist('item')
 	cases_dealt_list = request.POST.getlist('cases')
-	t_type=request.POST.get('transactionType')
+	t_type = request.POST.get('transactionType')
 	fees = request.POST.get('fees')
 	# reseting fees if null
 	if not fees:
@@ -107,7 +118,6 @@ def transaction(request, inventory_id):
 
 
 # Reporting problem sent to my default email
-@login_required
 def reportProblem(request):
 	subject = 'Inventory Managemnt Problem Reported'
 	message = request.POST.get('reportMessage')
@@ -181,6 +191,21 @@ def getItemsMonth(month, items_list, transactions_list):
 			month_data.append(total_cases)
 
 	return month_data
+
+#Login function: Verifying user's credentials
+def loginInv(request, username, password):
+	user = authenticate(username=username, password=password)
+	if user is not None:
+		if user.is_active:
+			login(request, user)
+			return True
+			print("User is valid, active and authenticated")
+		else:
+			return False
+			print("The password is valid, but the account has been disabled!")
+	else:
+		return False
+		print("The username and password were incorrect.")
 
 '''
 def get_referer_view(request, default=None):
