@@ -35,7 +35,7 @@
 	</nav>
 	<div class="row pull-right">
 			<div class="col-xs-12 logged">
-				Logged in as <strong>{{ request.user }}</strong>, <a href="#">Logout</a>
+				Logged in as <strong>{{ request.user }}</strong>, <a href="{% url 'Inventories:logout' %}">Logout</a>
 			</div>
 		</div>
 	<div class="content">

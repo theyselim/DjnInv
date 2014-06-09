@@ -1,5 +1,6 @@
-from django.http import HttpResponseRedirect, HttpResponse, StreamingHttpResponse
-from django.contrib.auth import authenticate, login
+from django.http import HttpResponseRedirect, HttpResponse, StreamingHttpResponse, Http404
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404
 from Inventories.models import Inventory, Item, Transaction, ItemTransaction
 from django.shortcuts import redirect
@@ -12,7 +13,7 @@ from decimal import *
 
 ########## RENDERING VIEWS #####################
 s = 'Inventories/'
-#Homepage view: Showing inventories
+#Homepage view: Authenticating users and displaying current inventories
 def index(request):
 	# Redirect to login page
 	if request.user.is_anonymous() and request.method != 'POST':
@@ -28,7 +29,7 @@ def index(request):
 	elif request.user.is_authenticated():
 		return loadIndex(request)
 		
-
+#Homepage view: Inventories View / Helper Function
 def loadIndex(request):
 	date_now = timezone.now()
 	date_past = date_now - datetime.timedelta(days=90)
@@ -50,8 +51,16 @@ def loadIndex(request):
 	return render(request, s+'index.html', context)
 		
 
+#Logout function
+@login_required(login_url='/')
+def logoutInv(request):
+	logout(request)
+	context = {'forgot': 'Logged Out!'}
+	return render(request, 'registration/login.html', context)
+
 
 #Inventory view according to the one selected from index view
+@login_required(login_url='/')
 def inventory(request, inventory_id):
 	inventory = get_object_or_404(Inventory, pk=inventory_id)
 	all_inven_items = inventory.item_set.all()#Uncomment for Alpha ordering .order_by('description')
@@ -75,6 +84,7 @@ def inventory(request, inventory_id):
 
 
 #Perform transaction operation from Order POST form, redirect to updated inventory
+@login_required(login_url='/')
 def transaction(request, inventory_id):
 	inventory = get_object_or_404(Inventory, pk=inventory_id)
 	items_list = request.POST.getlist('item')
@@ -118,6 +128,7 @@ def transaction(request, inventory_id):
 
 
 # Reporting problem sent to my default email
+@login_required(login_url='/')
 def reportProblem(request):
 	subject = 'Inventory Managemnt Problem Reported'
 	message = request.POST.get('reportMessage')
@@ -131,15 +142,18 @@ def reportProblem(request):
 	return HttpResponse()
 	#HttpResponseRedirect(reverse('Inventories:index'))
  
-#Viewing orders/transactions archive
 
+#Viewing orders/transactions archive
+@login_required(login_url='/')
 def archive(request):
 	last_15_transactions = Transaction.objects.all().order_by('-id')[:15]
 
 	#Google facebook news feed stories/feed load
 	context = {'last_15_transactions': last_15_transactions,
 	}
-	return render(request, s+'archive.html', context)
+	return render(request, s+'coming_soon.html', context)
+
+
 
 ##########################################
 ######### ADDITIONAL OPERATIONS ##########
@@ -206,22 +220,3 @@ def loginInv(request, username, password):
 	else:
 		return False
 		print("The username and password were incorrect.")
-
-'''
-def get_referer_view(request, default=None):
-   
-   	#Return the referer view of the current request
-    # if the user typed the url directly in the browser's address bar
-    referer = request.META.get('HTTP_REFERER')
-    if not referer:
-        return default
-
-    # remove the protocol and split the url at the slashes
-    referer = re.sub('^https?:\/\/', '', referer).split('/')
-    #if referer[0] != request.META.get('SERVER_NAME'):
-     #   return default
-
-    # add the slash at the relative path's view and finished
-    referer = u'/' + u'/'.join(referer[1:])
-    return referer
-'''

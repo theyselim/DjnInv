@@ -1,0 +1,152 @@
+{% extends "Inventories/base.html" %}{% load static %}
+
+{% block extra-stylesheet %}
+<STYLE type="text/css">
+  .logged {
+    right: 130px !important;
+    bottom: 15px !important;
+  }
+  body {
+    padding: 30px;
+    background-color: #f1f1f1 ;
+    font-family: Arial, Helvetica, san-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6, p {
+    margin: 0 !important;
+    color: #877a71 !important;
+  }
+
+  h1 {
+    font-size: 26px !important;
+    margin-top: 50px !important;
+    margin-bottom: 10px !important;
+  }
+
+  h2 {
+    font-weight:normal !important;
+    font-size: 24px !important;
+  }
+
+  .container {
+    display: table ;
+    height: 100%;
+    min-height: 100%;
+    position: relative;
+    width: 100%;
+  }
+
+  .content {
+    padding: 100px 30px 30px 30px;
+    background-color: #fff;
+    display: table-cell;
+    height: 100%;
+    overflow: hidden;
+    width: 100%;
+    text-align: center;
+  }
+
+  *, *:before, *:after {
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+
+
+  .animated {
+    -webkit-animation-duration: 1s;
+    animation-duration: 1s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+  }
+
+  @-webkit-keyframes fadeInDown {
+    0% {
+      opacity: 0;
+      -webkit-transform: translateY(-20px);
+      transform: translateY(-20px);
+    }
+
+    100% {
+      opacity: 1;
+      -webkit-transform: translateY(0);
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInDown {
+    0% {
+      opacity: 0;
+      -webkit-transform: translateY(-20px);
+      -ms-transform: translateY(-20px);
+      transform: translateY(-20px);
+    }
+
+    100% {
+      opacity: 1;
+      -webkit-transform: translateY(0);
+      -ms-transform: translateY(0);
+      transform: translateY(0);
+    }
+  }
+
+  .fadeInDown {
+    -webkit-animation-name: fadeInDown;
+    animation-name: fadeInDown;
+  }
+
+  @-webkit-keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      -webkit-transform: translateY(20px);
+      transform: translateY(20px);
+    }
+
+    100% {
+      opacity: 1;
+      -webkit-transform: translateY(0);
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      -webkit-transform: translateY(20px);
+      -ms-transform: translateY(20px);
+      transform: translateY(20px);
+    }
+
+    100% {
+      opacity: 1;
+      -webkit-transform: translateY(0);
+      -ms-transform: translateY(0);
+      transform: translateY(0);
+    }
+  }
+
+  .fadeInUp {
+    -webkit-animation-name: fadeInUp;
+    animation-name: fadeInUp;
+  }
+
+
+</STYLE>
+{% endblock %}
+
+{% block title %}Archive: Coming Soon{% endblock %}
+
+{% block header-active %}
+<li ><a href="{% url 'Inventories:index' %}">Home</a></li>
+<li class="active"><a href="#">Archive</a></li>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="content">
+   <!-- <img src="http://www.energyjobz.com/assets/images/default-logo.png" class="animated fadeInDown" /> -->
+   <h1 class="animated fadeInUp">This page is work in progress</h1>
+   <h2 class="animated fadeInUp">Please visit again soon</h2>
+ </div>
+</div>
+
+{% endblock %}

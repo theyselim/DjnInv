@@ -8,7 +8,11 @@
 
 
 <body>
-  <p id="forgot"></p>
+  <p id="forgot">
+    {% if forgot %}
+    {{ forgot }}
+    {% endif %}
+  </p>
   {% if err_message %}
   <p id="error_msg" class="errornote">
     {{ err_message }}
