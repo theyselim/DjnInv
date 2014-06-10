@@ -86,6 +86,12 @@ def inventory(request, inventory_id):
 #Perform transaction operation from Order POST form, redirect to updated inventory
 @login_required(login_url='/')
 def transaction(request, inventory_id):
+	# Avoid guest account from messing with orders
+	if request.user.usernam == 'guest':
+		request.session['message'] = 'Guest account can\'t create orders'
+		request.session['error_msg'] = 'true'
+		return HttpResponseRedirect(reverse('Inventories:inventory', args=(inventory.id,)))
+	
 	inventory = get_object_or_404(Inventory, pk=inventory_id)
 	items_list = request.POST.getlist('item')
 	cases_dealt_list = request.POST.getlist('cases')
