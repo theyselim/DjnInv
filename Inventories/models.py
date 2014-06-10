@@ -23,7 +23,7 @@ class Item(models.Model):
 	item_number = models.IntegerField(blank=False)
 	description = models.CharField(max_length=600)
 	quantity = models.CharField(max_length=100, default=0)
-	amount = models.CharField(max_length=100, default=1)
+	amount = models.CharField(max_length=100, default='unit')
 	cases = models.IntegerField(default=0)
 	def_price = models.DecimalField(max_digits=5, decimal_places=2, null=False, verbose_name="default price")
 	curr_price = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, verbose_name="current price")

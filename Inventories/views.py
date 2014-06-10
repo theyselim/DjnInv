@@ -5,7 +5,7 @@ from django.shortcuts import render, get_object_or_404
 from Inventories.models import Inventory, Item, Transaction, ItemTransaction
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
-from django.core.mail import send_mail, BadHeaderError
+from django.core.mail import EmailMessage, BadHeaderError
 from django.utils import timezone
 import json, re, datetime
 from decimal import *
@@ -130,12 +130,11 @@ def transaction(request, inventory_id):
 # Reporting problem sent to my default email
 @login_required(login_url='/')
 def reportProblem(request):
-	subject = 'Inventory Managemnt Problem Reported'
 	message = request.POST.get('reportMessage')
-	from_email = 'webmaster@localhost'
 	
 	try:
-		send_mail(subject, message, from_email, ['youssefahmed91@hotmai.com'], fail_silently=False)
+		email = EmailMessage('Inventory Managemnt Problem Reported', message, to=['youssefahmed91@hotmail.com'])
+		email.send()
 	except BadHeaderError:
 		return HttpResponse('Invalid header found.')
 

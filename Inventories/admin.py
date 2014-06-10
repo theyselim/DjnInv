@@ -74,6 +74,7 @@ class UserAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
+        # add user_permissions to fields in Permissions to edit each user's permissions
         (_('Permissions'), {'fields': ('is_active', 'is_staff')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )

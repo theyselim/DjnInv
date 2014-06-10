@@ -28,9 +28,15 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Email Usage
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'inventory.preporting@gmail.com'
+EMAIL_HOST_PASSWORD = 'inventorypre'
+EMAIL_PORT = 587
 
 # Application definition
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' 
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' 
 
 INSTALLED_APPS = (
     'django.contrib.admin',
