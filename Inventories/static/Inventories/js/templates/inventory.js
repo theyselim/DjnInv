@@ -48,10 +48,12 @@ function calcSubCol(){
    var item_price = $('#' + id_prefix + 'price').val();
    var item_cases = $('#' + id_prefix + 'cases').val();
    var $item_subtotal = $('#' + id_prefix +'subtotal');
-
+   console.log('check ' + ($('#'+id_prefix).val()).length);
 	// In case case number was entered before the item description
-	if((item_cases>0) && (($('#'+id_prefix).val()).length > 4) && (item_price.length > 0)){
+	if((item_cases>0) && (($('#'+id_prefix).val()).length > 2) && (item_price.length > 0)){
 		$item_subtotal.val('$' + Math.round((parseFloat(item_price.substring(1))
+			*parseFloat(item_cases))*100)/100);
+		console.log('subtotal - ' + Math.round((parseFloat(item_price.substring(1))
 			*parseFloat(item_cases))*100)/100);
 		// Hide remove popover in case item desc & cases are just being added
 		hideRemPop();

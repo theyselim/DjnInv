@@ -8,6 +8,8 @@ from django.core.urlresolvers import reverse
 from django.core.mail import EmailMessage, BadHeaderError
 from django.utils import timezone
 import json, re, datetime
+from django.utils import simplejson as json
+from django.core import serializers
 from decimal import *
 
 
@@ -93,7 +95,7 @@ def transaction(request, inventory_id):
 		request.session['message'] = 'Guest account can\'t create orders'
 		request.session['error_msg'] = 'true'
 		return HttpResponseRedirect(reverse('Inventories:inventory', args=(inventory.id,)))
-		
+
 	items_list = request.POST.getlist('item')
 	cases_dealt_list = request.POST.getlist('cases')
 	t_type = request.POST.get('transactionType')
@@ -134,7 +136,7 @@ def transaction(request, inventory_id):
 	return HttpResponseRedirect(reverse('Inventories:inventory', args=(inventory.id,))) 
 
 
-# Reporting problem sent to my default email
+#Reporting problem sent to my default email
 @login_required(login_url='/')
 def reportProblem(request):
 	message = request.POST.get('reportMessage')
@@ -145,19 +147,66 @@ def reportProblem(request):
 	except BadHeaderError:
 		return HttpResponse('Invalid header found.')
 
+	# Just send the email amigo
 	return HttpResponse()
-	#HttpResponseRedirect(reverse('Inventories:index'))
- 
+
 
 #Viewing orders/transactions archive
 @login_required(login_url='/')
 def archive(request):
-	last_15_transactions = Transaction.objects.all().order_by('-id')[:15]
+	# If user is asking to view more orders
+	if request.is_ajax() and request.method == 'POST':
+		latest_transaction_id = int(request.POST.get('latest_id'))
+		next_5_transactions = []
 
-	#Google facebook news feed stories/feed load
-	context = {'last_15_transactions': last_15_transactions,
+		# Get the 5 objects available after the current one
+		for x in range(1,6):
+			if latest_transaction_id-x > 0:
+				current_transaction = Transaction.objects.all().values_list('id', 'description').filter(id=latest_transaction_id-x)[0]
+				next_5_transactions.append(current_transaction)
+
+		return HttpResponse(json.dumps(next_5_transactions), mimetype="application/json")
+
+	# get latest orders for first page load
+	last_5_transactions = Transaction.objects.all().order_by('-id')[:5]
+	print last_5_transactions
+	context = {'last_5_transactions': last_5_transactions,
 	}
-	return render(request, s+'coming_soon.html', context)
+	return render(request, s+'archive.html', context)
+
+#Retrieving certain transaction info / Archive helper function
+@login_required(login_url='/')
+def getTransactionInfo(request):
+	data = {}
+	if request.is_ajax() and request.method == 'POST':
+		requested_transaction_info = Transaction.objects.get(pk=int(request.POST.get('order_id')))
+		data['fees'] = requested_transaction_info.fees
+		data['trans_desc'] = requested_transaction_info.description
+		data['t_type'] =  requested_transaction_info.t_type
+		data['date'] =  requested_transaction_info.date_created.strftime('%m/%d/%Y')
+		data['subtotal'] = requested_transaction_info.subtotal
+		
+		itemTransaction_list = ItemTransaction.objects.all().filter(transaction=requested_transaction_info).values_list('item', 'cases_dealt')
+		items = []
+		for item in itemTransaction_list:
+			itemObj = Item.objects.get(pk=item[0])
+			price = itemObj.curr_price
+			if itemObj.curr_price is None:
+				price = itemObj.def_price
+			items.append((itemObj.description, itemObj.quantity, item[1], float(price), (itemObj.inventory).name))
+		data['items'] = items
+
+	else:
+		raise Http404
+
+	return HttpResponse(json.dumps(data, default=handleDecimal), mimetype="application/json")
+
+# Handling Decimal fields with JSON
+def handleDecimal(obj):
+	if isinstance(obj, Decimal):
+		return float(obj)
+	else:
+		return obj
 
 
 
@@ -169,10 +218,8 @@ def getPriceDifference(inv_list):
 	for item in inv_list:
 		if (item.curr_price is None) or (item.curr_price == item.def_price):
 			price_diff_list.append('-')
-		else: #item.curr_price - item.def_price > 0:
+		else:
 			price_diff_list.append(str(item.curr_price - item.def_price))
-		# else:
-		# 	price_diff_list.append(str(item.curr_price - item.def_price))
 	
 	return price_diff_list
 
@@ -183,7 +230,7 @@ def getTopItems(transactions_list):
 	itemTransaction_list = ItemTransaction.objects.all().filter(transaction__in=transactions_list)
 	top_items_list = []
 
-	# Looping through all transactions & items least, adding a list with corresponding items and all 
+	# Looping through all transactions & items lists, adding a list with corresponding items and all 
 	# cases that were taken out of the inventory, returning a sorted list of top 3 items
 	for itemTrans in itemTransaction_list:
 		if any(itemTrans.item in current_item for current_item in top_items_list):
